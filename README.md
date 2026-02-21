@@ -1,85 +1,79 @@
-# EuroSAT Land Cover Classification — Manual CNN Optimization Study
-
-This project implements an end-to-end image classification pipeline on the EuroSAT dataset (27,000 RGB satellite images, 10 classes) under strict manual training constraints.
-
-The objective was to analyze how activation functions, batch size, momentum, and skip connections affect optimization behavior and gradient flow in deep networks.
 
 
+# Project 1: Satellite Land Cover Classification
+
+This project builds a deep learning model to classify satellite images into different types of land cover (such as forests, rivers, highways, residential areas, etc.).
+
+Using the EuroSAT dataset (27,000 satellite images across 10 categories), I explored how different training choices affect model performance — including activation functions, batch size, momentum, and skip connections in deeper networks.
+
+The goal was not just to train a model, but to understand **what makes deep networks train well (or fail)**.
 
 ## Dataset
 
-- Source: torchvision.datasets.EuroSAT  
-- Classes: 10 land-cover categories  
-- Images: 64×64 RGB  
-- Split: 70% train / 30% test (fixed seed)
+* **Dataset:** EuroSAT (via torchvision)
+* **Images:** 27,000 RGB satellite images
+* **Classes:** 10 land-cover categories
+* **Resolution:** 64 × 64 pixels
+* **Train/Test Split:** 70% / 30% (fixed seed for reproducibility)
+
+The dataset is relatively balanced across classes, making it a good benchmark for multi-class classification.
 
 
+## Procedure
 
-## Key Experiments
+I trained multiple models to understand how different training decisions affect learning:
 
-- Shallow MLP (difficulty check)
-- Baseline Deep CNN
-- Activation comparison (Sigmoid vs Tanh vs LeakyReLU)
-- Mini-batch SGD analysis
-- Momentum tuning (α = 0.5, 0.9, 0.95)
-- Extended deep model (+10 layers)
-- Skip connection configurations
-- Gradient magnitude analysis (epoch 1)
+* A simple shallow network (to check problem difficulty)
+* A deeper convolutional network
+* Different activation functions (Sigmoid, Tanh, LeakyReLU)
+* Mini-batch training vs single-sample updates
+* Momentum-based optimization
+* A much deeper network (+10 layers)
+* Skip connections (to improve gradient flow)
+* Gradient magnitude tracking during the first training epoch
 
+Instead of relying on built-in optimizers, I implemented the training updates manually to better understand the optimization process.
 
 
 ## Results Summary
 
-![Results Table](images/results_table.png)
+![Results Table](images/satellite-classification-results.png)
 
-The best performing configuration achieved:
+The best model achieved:
 
-- **79.73% Test Accuracy**
-- **79.56% Macro Precision**
-- **79.59% Macro Recall**
+* **79.73% Test Accuracy**
+* **79.56% Macro Precision**
+* **79.59% Macro Recall**
 
-using **tanh activation + momentum (α=0.95) + skip connections**.
+The best configuration used:
 
-
-## Training Behavior (Example Curve)
-
-![Learning Curve](images/learning_curve.png)
-
-The learning curves show stable convergence when momentum and skip connections are introduced, compared to unstable or near-random performance under sigmoid activations.
+* **Tanh activation**
+* **Momentum (α = 0.95)**
+* **Skip connections in a deeper network**
 
 
-## Key Findings
+## Training Behavior
 
-- Sigmoid severely limits training in deeper networks.
-- Tanh significantly improves gradient propagation.
-- Momentum is critical for stable mini-batch optimization.
-- Skip connections dramatically improve gradient flow and final accuracy.
+![Learning Curve](images/satellite-classification-training-curve.png)
 
+The learning curves show a clear difference in stability:
 
+* Networks using **Sigmoid** struggled to train and stayed near random performance.
+* Switching to **Tanh** dramatically improved learning.
+* Adding **momentum** stabilized training.
+* Adding **skip connections** improved both convergence speed and final accuracy.
 
-## Implementation Constraints
-
-- Manual softmax + cross-entropy
-- Manual SGD updates
-- Manual gradient resets
-- No torch.optim usage
+This highlights how optimization strategy can be just as important as model architecture.
 
 
+## Implementation Details
 
-## Tech Stack
+To better understand training mechanics, I:
 
-- PyTorch
-- NumPy
-- Matplotlib
-- torchvision
+* Implemented softmax and cross-entropy manually
+* Implemented manual SGD updates
+* Reset gradients manually
+* Avoided `torch.optim`
 
+All experiments were run on CPU with a fixed random seed for reproducibility.
 
-
-## Reproducibility
-
-All experiments were run with:
-- Seed = 42
-- Fixed train/test split
-- CPU execution
-
----
